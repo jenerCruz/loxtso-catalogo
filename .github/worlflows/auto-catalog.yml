@@ -2,7 +2,7 @@ name: Auto-Actualizar Catálogo LOXTSO
 on:
   push:
     paths:
-      - 'img/**' # Se activa solo cuando subes fotos
+      - 'img/**'
 
 jobs:
   update-json:
@@ -11,32 +11,40 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v3
 
-      - name: Ejecutar script de actualización
+      - name: Ejecutar script de carpetas
         shell: bash
         run: |
-          # Lee el JSON actual o crea uno nuevo
           if [ ! -f productos.json ]; then echo "[]" > productos.json; fi
           
-          # Escanea la carpeta img
-          for file in img/*.*; do
+          # Buscamos todas las imágenes en cualquier subcarpeta de img/
+          find img -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.jpeg" \) | while read file; do
             filename=$(basename "$file")
-            # Si el archivo no está en el JSON, lo añade
-            if ! grep -q "$filename" productos.json; then
-              # Limpia el nombre (quita extensión y guiones)
-              clean_name=$(echo "${filename%.*}" | sed 's/-/ /g' | sed 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) lower(substr($i,2))}1')
+            
+            # Si el archivo no está en el JSON, lo procesamos
+            if ! grep -q "$file" productos.json; then
               
-              # Crea el objeto JSON (puedes ajustar el precio default)
-              new_item="{\"id\": $(date +%s%N), \"name\": \"$clean_name\", \"price\": 0.0, \"category\": \"General\", \"desc\": \"Nuevo ingreso\", \"img\": \"img/$filename\", \"size\": \"normal\"}"
+              # 1. Extraer Categoría (basada en las carpetas intermedias)
+              # Ejemplo: img/tazas/anime/goku.jpg -> Tazas Anime
+              category=$(dirname "$file" | sed 's/img\///g' | sed 's/\// /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
               
-              # Inserta al inicio del array
+              # Si la imagen está en la raíz de img/, poner General
+              if [ "$category" == "img" ] || [ -z "$category" ]; then category="General"; fi
+
+              # 2. Limpiar Nombre del producto
+              clean_name=$(echo "${filename%.*}" | sed 's/-/ /g' | sed 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
+              
+              # 3. Crear el nuevo item
+              new_item="{\"id\": $(date +%s%N), \"name\": \"$clean_name\", \"price\": 0.0, \"category\": \"$category\", \"desc\": \"Nuevo ingreso en $category\", \"img\": \"$file\", \"size\": \"normal\"}"
+              
+              # Insertar al inicio
               jq ". |= [$new_item] + ." productos.json > temp.json && mv temp.json productos.json
             fi
           done
 
-      - name: Commit y Push de cambios
+      - name: Commit y Push
         run: |
           git config --global user.name "LOXTSO Bot"
           git config --global user.email "bot@loxtso.com"
           git add productos.json
-          git commit -m "🤖 Auto-catálogo: Nuevos productos detectados" || exit 0
+          git commit -m "🤖 Registro automático: Carpetas procesadas" || exit 0
           git push
