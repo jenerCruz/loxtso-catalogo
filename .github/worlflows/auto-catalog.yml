@@ -1,9 +1,9 @@
+
 name: Auto-Actualizar Catálogo LOXTSO
 on:
   push:
     paths:
-      - 'img/**' 
-  workflow_dispatch: # Esto permite que lo corras MANUALMENTE para probar
+      - 'img/**'
 
 permissions:
   contents: write
@@ -14,43 +14,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Procesar Imágenes
+      - name: Procesar Imagenes
         shell: bash
         run: |
-          # 1. Crear JSON base si no existe
-          if [ ! -f productos.json ]; then echo "[]" > productos.json; fi
+          # Crear el json si no existe
+          if [ ! -s productos.json ]; then echo "[]" > productos.json; fi
           
-          # 2. Escanear carpetas de img/
-          # Buscamos archivos en img/ y sus subcarpetas
+          # Buscar imagenes y procesar
           find img -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.jpeg" \) | while read file; do
-            
-            # Si el archivo NO está en el JSON, lo agregamos
             if ! grep -q "$file" productos.json; then
-              # Sacar nombre y categoría
-              filename=$(basename "$file")
-              # Categoría = nombre de la carpeta madre
+              # Generar categoria segun la subcarpeta
               category=$(dirname "$file" | sed 's/img\///g' | sed 's/\// /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
               if [ "$category" == "img" ] || [ -z "$category" ]; then category="General"; fi
-              
+
+              # Generar nombre segun el archivo
+              filename=$(basename "$file")
               clean_name=$(echo "${filename%.*}" | sed 's/-/ /g' | sed 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
               
-              # Crear el objeto y meterlo al inicio con jq
-              # Usamos una estructura simple para evitar errores de sintaxis
-              jq --arg id "$(date +%s%N)" \
-                 --arg name "$clean_name" \
-                 --arg cat "$category" \
-                 --arg img "$file" \
-                 '. |= [{"id": $id, "name": $name, "price": 0, "category": $cat, "img": $img, "size": "normal"}] + .' productos.json > temp.json && mv temp.json productos.json
+              # Crear el objeto con jq
+              new_item="{\"id\": $(date +%s%N), \"name\": \"$clean_name\", \"price\": 0.00, \"category\": \"$category\", \"img\": \"$file\", \"size\": \"normal\"}"
+              
+              jq ". |= [$new_item] + ." productos.json > temp.json && mv temp.json productos.json
             fi
           done
 
-      - name: Forzar Commit
+      - name: Commit y Push
         run: |
-          git config --global user.name "LOXTSO-BOT"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add productos.json
-          git commit -m "🚀 Catálogo actualizado automáticamente" || exit 0
-          git push origin main
+          git commit -m "🤖 Producto autodetectado en carpeta" || exit 0
+          git push
