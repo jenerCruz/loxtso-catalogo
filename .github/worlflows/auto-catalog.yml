@@ -1,0 +1,56 @@
+name: Generar Catálogo Automático
+
+on:
+  push:
+    paths:
+      - 'img/**'
+    branches:
+      - main
+
+jobs:
+  generate-catalog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Listar imágenes y crear JSON
+        run: |
+          mkdir -p .github/workflows
+          cat > generate_products.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          
+          const imgDir = './img';
+          let products = [];
+          
+          if (fs.existsSync(imgDir)) {
+            const files = fs.readdirSync(imgDir).filter(f => 
+              /\.(jpg|jpeg|png|gif|webp)$/i.test(f)
+            );
+            
+            products = files.map((file, idx) => ({
+              id: Date.now() + idx,
+              name: file.replace(/\.[^/.]+$/, '').replace(/-|_/g, ' ').toUpperCase(),
+              price: 0,
+              category: 'Nuevo',
+              desc: 'Producto agregado automáticamente',
+              img: `img/${file}`,
+              size: 'normal'
+            }));
+          }
+          
+          fs.writeFileSync('products.json', JSON.stringify(products, null, 2));
+          console.log(`✅ Generados ${products.length} productos`);
+          EOF
+          
+          node generate_products.js
+      
+      - name: Commit y Push cambios
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Auto Catalog Bot"
+          git add products.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "📸 Actualizar catálogo automáticamente" && git push)
