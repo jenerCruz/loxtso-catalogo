@@ -130,6 +130,89 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .animate-slide-left {
+            animation: slideInLeft 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .animate-pulse-hover:hover {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        .stagger-1 { animation-delay: 0.05s; }
+        .stagger-2 { animation-delay: 0.1s; }
+        .stagger-3 { animation-delay: 0.15s; }
+        .stagger-4 { animation-delay: 0.2s; }
+        .stagger-5 { animation-delay: 0.25s; }
+
+        .admin-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .admin-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .admin-item.editing {
+            border: 2px solid #1d1d1f;
+            background: #fafafa;
+        }
+
+        .filter-select {
+            background: #e8e8ed;
+            border: none;
+            border-radius: 14px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-select:focus {
+            background: #dcdce0;
+            box-shadow: 0 0 0 2px #1d1d1f;
+        }
+
+        .edit-btn {
+            background: #1d1d1f;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            background: #333;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -183,15 +266,16 @@
                     <div class="bg-purple-50 p-4 rounded-2xl mb-2">
                         <p class="text-[10px] font-bold text-purple-500 uppercase mb-1">Imagen</p>
                         <input type="file" id="pImgFile" accept="image/*" class="text-xs mb-2">
-                        <p class="text-[10px] text-purple-700">O usa URL externa: <input type="text" id="pImgUrl" placeholder="https://..." class="mt-1"></p>
+                        <p class="text-[10px] text-purple-700">O usa URL externa: <input type="text" id="pImgUrl" placeholder="https://..." class="mt-1" onchange="document.getElementById('pImg').value = this.value"></p>
+                        <input type="text" id="pImg" placeholder="img/carpeta/imagen.png" class="mt-2 text-xs">
                     </div>
-                    <input type="text" id="pImg" placeholder="img/foto.jpg - se llenará automáticamente" readonly class="bg-gray-100">
                     <select id="pSize">
                         <option value="normal">Tamaño: Estándar (1x1)</option>
                         <option value="wide">Tamaño: Panorámico (2x1)</option>
                         <option value="large">Tamaño: Vertical (1x2)</option>
                     </select>
                     <button type="submit" class="btn-apple w-full mt-2">Guardar Cambios</button>
+                    <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="btn-apple w-full mt-2 bg-gray-200 text-gray-700 hidden">Cancelar Edición</button>
                 </form>
                 <hr class="my-6 border-gray-200">
                 <h3 class="text-xl font-bold mb-4">Sincronizar con GitHub</h3>
@@ -203,12 +287,20 @@
                 <button onclick="syncToGitHub()" id="syncBtn" class="btn-apple w-full bg-purple-600 hover:bg-purple-700">
                     ⬆ Subir a GitHub
                 </button>
+                <button onclick="downloadFromGitHub()" class="btn-apple w-full mt-2 bg-gray-600 hover:bg-gray-700">
+                    ⬇ Descargar de GitHub
+                </button>
                 <div id="syncStatus" class="text-xs mt-2 text-center text-gray-500"></div>
             </div>
 
             <!-- Listado -->
             <div class="lg:col-span-2">
-                <h3 class="text-xl font-bold mb-6">Productos actuales</h3>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Productos actuales</h3>
+                    <select id="adminCategoryFilter" class="filter-select" onchange="setAdminCategory(this.value)">
+                        <option value="todos">Todas las categorías</option>
+                    </select>
+                </div>
                 <div id="adminProductList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Dinámico -->
                 </div>
@@ -218,7 +310,7 @@
 
     <!-- Modal Detalle -->
     <div id="productModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] hidden items-center justify-center p-4" onclick="if(event.target === this) closeModal()">
-        <div class="bg-white rounded-[40px] max-w-lg w-full p-8 relative animate-fade-in shadow-2xl">
+        <div class="bg-white rounded-[40px] max-w-lg w-full p-8 relative animate-slide-up shadow-2xl">
             <button onclick="closeModal()" class="absolute top-6 right-6 w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition">✕</button>
             <img id="modalImg" src="" class="w-full h-72 object-cover rounded-3xl mb-6 shadow-sm">
             <span id="modalCat" class="text-[10px] font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full"></span>
@@ -226,7 +318,7 @@
             <p id="modalDesc" class="text-gray-500 text-base mb-8"></p>
             <div class="flex items-center justify-between border-t pt-6">
                 <span id="modalPrice" class="text-4xl font-bold tracking-tighter"></span>
-                <button id="whatsappBtn" class="btn-apple px-10">WhatsApp</button>
+                <button id="whatsappBtn" class="btn-apple px-10 animate-pulse-hover">WhatsApp</button>
             </div>
         </div>
     </div>
@@ -235,6 +327,8 @@
     let products = []; // Empezamos vacío
     let currentCategory = 'todos';
     let currentProduct = null;
+    let editingId = null;
+    let adminCategory = 'todos';
 
     // --- FUNCIÓN DE CARGA DINÁMICA ---
     async function loadData() {
@@ -269,9 +363,10 @@
             ? products 
             : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
 
-        filtered.forEach(p => {
+        filtered.forEach((p, index) => {
             const el = document.createElement('div');
-            el.className = `widget-item ${p.size} animate-fade-in`;
+            const staggerClass = `stagger-${(index % 5) + 1}`;
+            el.className = `widget-item ${p.size} animate-fade-in ${staggerClass}`;
             el.onclick = () => openModal(p);
             el.innerHTML = `
                 <img src="${getImagePath(p.img)}" class="w-full h-full object-cover absolute inset-0" onerror="this.src='https://via.placeholder.com/400?text=Imagen+No+Encontrada'">
@@ -289,8 +384,8 @@
     function updateCategoryUI() {
         const container = document.getElementById('categoryFilter');
         const cats = ['todos', ...new Set(products.map(p => p.category.toLowerCase()))];
-        container.innerHTML = cats.map(cat => `
-            <button class="category-pill ${currentCategory === cat ? 'active' : ''}" onclick="setCategory('${cat}')">
+        container.innerHTML = cats.map((cat, index) => `
+            <button class="category-pill ${currentCategory === cat ? 'active' : ''} animate-slide-left" style="animation-delay: ${index * 0.05}s" onclick="setCategory('${cat}')">
                 ${cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
         `).join('');
@@ -308,6 +403,7 @@
             document.getElementById('catalogView').classList.replace('block', 'hidden');
             document.getElementById('adminView').classList.replace('hidden', 'block');
             document.getElementById('adminBtn').classList.add('hidden');
+            adminCategory = 'todos';
             renderAdminList();
             window.scrollTo(0,0);
         } else if (pass !== null) { alert("Clave incorrecta."); }
@@ -317,6 +413,7 @@
         document.getElementById('adminView').classList.replace('block', 'hidden');
         document.getElementById('catalogView').classList.replace('hidden', 'block');
         document.getElementById('adminBtn').classList.remove('hidden');
+        cancelEdit();
         loadData(); // Recargar al salir
     }
 
@@ -355,7 +452,56 @@
         status.innerText = "⏳ Sincronizando...";
         
         try {
-            // 1. Obtener SHA del archivo actual
+            // 1. Subir imágenes nuevas primero
+            const productsWithNewImages = products.filter(p => 
+                p.img && p.img.startsWith('img/uploads/') && p.imgBase64
+            );
+            
+            for (const p of productsWithNewImages) {
+                try {
+                    const imgData = p.imgBase64.split(',')[1]; // Quitar prefix data:image...
+                    const content = atob(imgData);
+                    
+                    const imgPath = p.img;
+                    
+                    // Verificar si ya existe
+                    const getImgResp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${imgPath}`, {
+                        headers: { 'Authorization': `Bearer ${config.token}` }
+                    });
+                    
+                    let sha = null;
+                    if (getImgResp.ok) {
+                        const imgData = await getImgResp.json();
+                        sha = imgData.sha;
+                    }
+                    
+                    // Subir imagen
+                    const imgContent = btoa(content);
+                    const uploadImgResp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${imgPath}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${config.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Subir imagen: ${p.name}`,
+                            content: imgContent,
+                            sha: sha
+                        })
+                    });
+                    
+                    if (uploadImgResp.ok) {
+                        // Actualizar el producto para quitar el base64 y solo guardar la ruta
+                        p.img = imgPath;
+                        delete p.imgBase64;
+                        console.log(`Imagen subida: ${imgPath}`);
+                    }
+                } catch (imgErr) {
+                    console.error(`Error subiendo imagen ${p.img}:`, imgErr);
+                }
+            }
+
+            // 2. Obtener SHA del archivo actual
             const getResp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${GITHUB_FILE_PATH}`, {
                 headers: { 'Authorization': `Bearer ${config.token}` }
             });
@@ -366,7 +512,7 @@
                 sha = data.sha;
             }
 
-            // 2. Subir archivo
+            // 3. Subir archivo JSON
             const content = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
             const uploadResp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${GITHUB_FILE_PATH}`, {
                 method: 'PUT',
@@ -382,8 +528,11 @@
             });
 
             if (uploadResp.ok) {
-                status.innerText = "✅ ¡Sincronizado! Los cambios se verán en la web.";
+                localStorage.setItem('loxtso_data', JSON.stringify(products));
+                status.innerText = "✅ ¡Sincronizado! Guardado en local y GitHub.";
                 status.className = "text-xs mt-2 text-center text-green-600 font-bold";
+                renderCatalog();
+                renderAdminList();
             } else {
                 const err = await uploadResp.json();
                 status.innerText = "❌ Error: " + (err.message || "Verifica tu token");
@@ -394,16 +543,60 @@
         }
     }
 
-    // --- CONVERSIÓN IMAGEN A BASE64 ---
+    async function downloadFromGitHub() {
+        saveGitHubConfig();
+        const config = getGitHubConfig();
+        const status = document.getElementById('syncStatus');
+        
+        if (!config.token) {
+            status.innerText = "⚠️ necesitas tu Token GitHub";
+            return;
+        }
+        
+        status.innerText = "⏳ Descargando...";
+        
+        try {
+            const resp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${GITHUB_FILE_PATH}`, {
+                headers: { 'Authorization': `Bearer ${config.token}` }
+            });
+            
+            if (!resp.ok) {
+                throw new Error("Archivo no encontrado");
+            }
+            
+            const data = await resp.json();
+            const content = decodeURIComponent(escape(atob(data.content)));
+            const downloadedProducts = JSON.parse(content);
+            
+            localStorage.setItem('loxtso_data', JSON.stringify(downloadedProducts));
+            products = downloadedProducts;
+            
+            renderCatalog();
+            renderAdminList();
+            
+            status.innerText = "✅ ¡Descargado! Productos guardados localmente.";
+            status.className = "text-xs mt-2 text-center text-green-600 font-bold";
+        } catch (e) {
+            status.innerText = "❌ Error: " + e.message;
+        }
+    }
+
+    // --- CONVERSIÓN IMAGEN ---
     document.getElementById('pImgFile').addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (!file) return;
         
+        // Si es un archivo local en la carpeta img, usar la ruta
+        // Si es un archivo nuevo, convertir a base64
+        const path = 'img/uploads/' + file.name;
+        
+        // Preview de la imagen
         const reader = new FileReader();
         reader.onload = function(evt) {
-            // Guardar base64 en el campo
-            document.getElementById('pImg').value = evt.target.result;
+            document.getElementById('pImg').value = path;
             document.getElementById('pImgUrl').value = '';
+            // Guardar base64 para subir después
+            document.getElementById('pImg').dataset.base64 = evt.target.result;
         };
         reader.readAsDataURL(file);
     });
@@ -412,6 +605,14 @@
         if (e.target.value.trim()) {
             document.getElementById('pImg').value = e.target.value.trim();
             document.getElementById('pImgFile').value = '';
+            delete document.getElementById('pImg').dataset.base64;
+        }
+    });
+
+    document.getElementById('pImg').addEventListener('input', function(e) {
+        if (e.target.value.startsWith('img/')) {
+            document.getElementById('pImgFile').value = '';
+            delete document.getElementById('pImg').dataset.base64;
         }
     });
 
@@ -419,7 +620,6 @@
     document.getElementById('productForm').onsubmit = function(e) {
         e.preventDefault();
         
-        // Obtener imagen
         let imgPath = document.getElementById('pImg').value;
         
         if (!imgPath) {
@@ -427,8 +627,7 @@
             return;
         }
 
-        const newP = {
-            id: Date.now(),
+        const productData = {
             name: document.getElementById('pName').value,
             price: parseFloat(document.getElementById('pPrice').value),
             category: document.getElementById('pCategory').value,
@@ -436,26 +635,82 @@
             img: imgPath,
             size: document.getElementById('pSize').value
         };
-        products.unshift(newP);
+
+        // Guardar base64 si existe (para nuevas imágenes)
+        const base64 = document.getElementById('pImg').dataset.base64;
+        if (base64) {
+            productData.imgBase64 = base64;
+        }
+
+        if (editingId) {
+            // Mantener el ID original
+            const existingProduct = products.find(p => p.id === editingId);
+            if (existingProduct) {
+                productData.id = existingProduct.id;
+            }
+            updateProduct(editingId, productData);
+            cancelEdit();
+        } else {
+            // Nuevo producto - crear ID basado en nombre
+            const nameForId = productData.name.replace(/\s+/g, '');
+            const priceStr = productData.price > 0 ? '-' + Math.round(productData.price) : '';
+            const idStr = nameForId + priceStr;
+            // Crear ID numérico del string
+            let hash = 0;
+            for (let i = 0; i < idStr.length; i++) {
+                const char = idStr.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            productData.id = Math.abs(hash);
+            
+            products.unshift(productData);
+        }
+        
         localStorage.setItem('loxtso_data', JSON.stringify(products));
         renderAdminList();
+        renderCatalog();
         this.reset();
         document.getElementById('pImg').value = '';
+        delete document.getElementById('pImg').dataset.base64;
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        document.querySelector('#productForm button[type="submit"]').textContent = 'Guardar Cambios';
     };
+
+    function updateAdminCategoryFilter() {
+        const filter = document.getElementById('adminCategoryFilter');
+        const cats = ['todos', ...new Set(products.map(p => p.category))];
+        filter.innerHTML = cats.map(cat => `
+            <option value="${cat}" ${adminCategory === cat ? 'selected' : ''}>${cat === 'todos' ? 'Todas las categorías' : cat}</option>
+        `).join('');
+    }
+
+    function setAdminCategory(cat) {
+        adminCategory = cat;
+        renderAdminList();
+    }
 
     function renderAdminList() {
         const list = document.getElementById('adminProductList');
         list.innerHTML = '';
-        products.forEach(p => {
+        updateAdminCategoryFilter();
+        
+        const filtered = adminCategory === 'todos' 
+            ? products 
+            : products.filter(p => p.category === adminCategory);
+        
+        filtered.forEach((p, index) => {
             const item = document.createElement('div');
-            item.className = "flex items-center gap-4 bg-gray-50 p-4 rounded-3xl border border-gray-100 transition hover:bg-white hover:shadow-md";
+            item.className = `admin-item flex items-center gap-4 bg-gray-50 p-4 rounded-3xl border border-gray-100 ${editingId === p.id ? 'editing' : ''} animate-slide-up stagger-${(index % 5) + 1}`;
             item.innerHTML = `
                 <img src="${getImagePath(p.img)}" class="w-16 h-16 rounded-2xl object-cover" onerror="this.src='https://via.placeholder.com/100'">
                 <div class="flex-1 min-w-0">
                     <p class="font-bold text-sm truncate">${p.name}</p>
                     <p class="text-[10px] text-gray-400 uppercase font-bold">${p.category}</p>
+                    <p class="text-xs text-gray-500">$${parseFloat(p.price).toFixed(2)}</p>
                 </div>
-                <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:bg-red-50 p-3 rounded-full">✕</button>
+                <button onclick="editProduct(${p.id})" class="edit-btn mr-2">✏️ Editar</button>
+                <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:bg-red-50 p-3 rounded-full transition">✕</button>
             `;
             list.appendChild(item);
         });
@@ -464,7 +719,89 @@
     function deleteProduct(id) {
         if(confirm("¿Eliminar? (Solo se borrará de tu vista actual)")) {
             products = products.filter(p => p.id !== id);
+            localStorage.setItem('loxtso_data', JSON.stringify(products));
             renderAdminList();
+            renderCatalog();
+        }
+    }
+
+    function editProduct(id) {
+        const p = products.find(prod => prod.id === id);
+        if (!p) return;
+        
+        editingId = id;
+        document.getElementById('pName').value = p.name;
+        document.getElementById('pPrice').value = p.price;
+        document.getElementById('pCategory').value = p.category;
+        document.getElementById('pDesc').value = p.desc || '';
+        document.getElementById('pImg').value = p.img;
+        document.getElementById('pSize').value = p.size || 'normal';
+        
+        // Manejar imagen editable
+        if (p.imgBase64) {
+            document.getElementById('pImg').dataset.base64 = p.imgBase64;
+        } else {
+            delete document.getElementById('pImg').dataset.base64;
+        }
+        
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
+        document.querySelector('#productForm button[type="submit"]').textContent = 'Actualizar producto';
+        
+        renderAdminList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+        editingId = null;
+        document.getElementById('productForm').reset();
+        document.getElementById('pImg').value = '';
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        document.querySelector('#productForm button[type="submit"]').textContent = 'Guardar Cambios';
+    }
+
+    function updateProduct(id, data) {
+        const index = products.findIndex(p => p.id === id);
+        if (index !== -1) {
+            products[index] = { ...products[index], ...data };
+        }
+    }
+
+    async function uploadImageToGitHub(imgPath, base64Data, productName) {
+        const config = getGitHubConfig();
+        if (!config.token) return false;
+        
+        try {
+            const imgData = base64Data.split(',')[1];
+            const content = atob(imgData);
+            
+            const getImgResp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${imgPath}`, {
+                headers: { 'Authorization': `Bearer ${config.token}` }
+            });
+            
+            let sha = null;
+            if (getImgResp.ok) {
+                const imgInfo = await getImgResp.json();
+                sha = imgInfo.sha;
+            }
+            
+            const imgContent = btoa(content);
+            const uploadImgResp = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${imgPath}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${config.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Actualizar imagen: ${productName}`,
+                    content: imgContent,
+                    sha: sha
+                })
+            });
+            
+            return uploadImgResp.ok;
+        } catch (e) {
+            console.error(`Error subiendo imagen ${imgPath}:`, e);
+            return false;
         }
     }
 

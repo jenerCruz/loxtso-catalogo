@@ -35,6 +35,7 @@ jobs:
           find img -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.jpeg" \) | sort | while read file; do
             echo "Procesando: $file"
             
+            # Obtener categoría basada en la subcarpeta
             dir_path=$(dirname "$file")
             if [ "$dir_path" = "img" ]; then 
               category="General"
@@ -44,21 +45,55 @@ jobs:
 
             filename=$(basename "$file")
             name_only="${filename%.*}"
-            clean_name=$(echo "$name_only" | sed 's/(.*)//g' | sed 's/-/ /g' | sed 's/_/ /g' | sed 's/[0-9]*$//g' | sed 's/  */ /g' | xargs)
+            
+            # Extraer precio del formato: Nombre-Price.png (ej: Naruto01-45.png = precio 45)
+            price=0
+            if echo "$name_only" | grep -qE '[0-9]+$'; then
+              # Buscar el último número que viene después de un guión o al final
+              price=$(echo "$name_only" | grep -oE '[0-9]+$' | head -1)
+              if [ -n "$price" ]; then
+                # Quitar el precio del nombre
+                clean_name=$(echo "$name_only" | sed "s/-*$price$//")
+              else
+                clean_name="$name_only"
+              fi
+            else
+              clean_name="$name_only"
+            fi
+            
+            # Limpiar nombre (quitar paréntesis, guiones bajos, etc)
+            clean_name=$(echo "$clean_name" | sed 's/(.*)//g' | sed 's/-/ /g' | sed 's/_/ /g' | sed 's/[0-9]*$//g' | sed 's/  */ /g' | xargs)
             clean_name=$(echo "$clean_name" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
             
             if [ -z "$clean_name" ]; then
               clean_name="Producto"
             fi
             
-            new_id=$(( $(date +%s) * 1000 + RANDOM % 1000 ))
+            # Determinar tamaño basado en dimensiones (se detecta después)
+            size="normal"
             
-            tmp=$(mktemp)
-            jq --arg id "$new_id" --arg name "$clean_name" --arg category "$category" --arg img "$file" \
-              '. + [{id: $id | tonumber, name: $name, price: 0, category: $category, desc: "Auto-detectado", img: $img, size: "normal"}]' \
-              productos.json > tmp && mv tmp productos.json
+            # Crear ID basado en nombre de archivo sin precio
+            id_name=$(echo "$clean_name" | tr ' ' '-' | tr '[:upper:]' '[:lower:]')
+            new_id=$(echo "$id_name-$price" | md5sum | cut -c1-16)
+            new_id=$((0x$new_id))
             
-            echo "✓Agregado: $clean_name ($category)"
+            # Verificar si ya existe el producto por nombre+categoría
+            existing=$(jq --arg n "$clean_name" --arg c "$category" '.[] | select(.name == $n and .category == $c)' productos.json)
+            
+            if [ -n "$existing" ]; then
+              echo "Ya existe: $clean_name ($category), actualizando precio: $price"
+              # Actualizar precio si cambió
+              tmp=$(mktemp)
+              jq --arg n "$clean_name" --arg c "$category" --argjson p "$price" \
+                'map(if .name == $n and .category == $c then .price = $p else . end)' \
+                productos.json > tmp && mv tmp productos.json
+            else
+              tmp=$(mktemp)
+              jq --argjson id "$new_id" --arg name "$clean_name" --argjson price "$price" --arg category "$category" --arg img "$file" \
+                '. + [{id: $id, name: $name, price: $price, category: $category, desc: "Auto-detectado", img: $img, size: $size}]' \
+                productos.json > tmp && mv tmp productos.json
+              echo "✓Agregado: $clean_name - $$price ($category)"
+            fi
           done
 
       - name: Commit y Push
