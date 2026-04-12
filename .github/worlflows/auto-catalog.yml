@@ -1,4 +1,3 @@
-
 name: Auto-Actualizar Catálogo LOXTSO
 on:
   push:
