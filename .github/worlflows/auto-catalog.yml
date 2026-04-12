@@ -2,55 +2,55 @@ name: Auto-Actualizar Catálogo LOXTSO
 on:
   push:
     paths:
-      - 'img/**' # Solo se activa si subes algo a la carpeta img
+      - 'img/**' 
+  workflow_dispatch: # Esto permite que lo corras MANUALMENTE para probar
 
 permissions:
-  contents: write # IMPORTANTE: Permiso para que el bot pueda guardar el JSON
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del código
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Instalar jq
-        run: sudo apt-get install jq -y
-
-      - name: Procesar Imágenes y Carpetas
+      - name: Procesar Imágenes
         shell: bash
         run: |
-          # Crear productos.json si no existe
-          if [ ! -f productos.json ] || [ ! -s productos.json ]; then 
-            echo "[]" > productos.json
-          fi
+          # 1. Crear JSON base si no existe
+          if [ ! -f productos.json ]; then echo "[]" > productos.json; fi
           
-          # Escaneo de imágenes en subcarpetas
+          # 2. Escanear carpetas de img/
+          # Buscamos archivos en img/ y sus subcarpetas
           find img -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.jpeg" \) | while read file; do
             
-            # Solo añadir si no existe ya en el JSON
+            # Si el archivo NO está en el JSON, lo agregamos
             if ! grep -q "$file" productos.json; then
-              
-              # Categoría basada en la carpeta (ej: img/tazas/anime -> Tazas Anime)
+              # Sacar nombre y categoría
+              filename=$(basename "$file")
+              # Categoría = nombre de la carpeta madre
               category=$(dirname "$file" | sed 's/img\///g' | sed 's/\// /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
               if [ "$category" == "img" ] || [ -z "$category" ]; then category="General"; fi
-
-              # Nombre basado en el archivo
-              filename=$(basename "$file")
+              
               clean_name=$(echo "${filename%.*}" | sed 's/-/ /g' | sed 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
               
-              # Crear el objeto JSON
-              new_item="{\"id\": $(date +%s%N), \"name\": \"$clean_name\", \"price\": 0.0, \"category\": \"$category\", \"desc\": \"Nuevo ingreso\", \"img\": \"$file\", \"size\": \"normal\"}"
-              
-              # Unir al JSON existente
-              jq ". |= [$new_item] + ." productos.json > temp.json && mv temp.json productos.json
+              # Crear el objeto y meterlo al inicio con jq
+              # Usamos una estructura simple para evitar errores de sintaxis
+              jq --arg id "$(date +%s%N)" \
+                 --arg name "$clean_name" \
+                 --arg cat "$category" \
+                 --arg img "$file" \
+                 '. |= [{"id": $id, "name": $name, "price": 0, "category": $cat, "img": $img, "size": "normal"}] + .' productos.json > temp.json && mv temp.json productos.json
             fi
           done
 
-      - name: Guardar cambios en el repositorio
+      - name: Forzar Commit
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "LOXTSO-BOT"
+          git config --global user.email "actions@github.com"
           git add productos.json
-          git commit -m "🤖 Catálogo: Se agregaron nuevos productos automáticamente" || echo "Sin cambios para commitear"
-          git push
+          git commit -m "🚀 Catálogo actualizado automáticamente" || exit 0
+          git push origin main
