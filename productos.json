@@ -1,1 +1,434 @@
-[ ]
+[
+  {
+    "id": 1776025693528,
+    "name": "DeagonBall",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/DeagonBall08.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025693517,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/DragonBall01.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025693411,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/DragonBall02.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025693398,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/DragonBall03.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025693449,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/DragonBall04.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694086,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/DragonBall06.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694812,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/DragonBall07.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694294,
+    "name": "Naruto",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/Naruto01.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694770,
+    "name": "OnePeace",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/OnePeace01.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694627,
+    "name": "OnePeace",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/OnePeace02.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694079,
+    "name": "Simpsons",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/Simpsons01.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694603,
+    "name": "DeagonBall",
+    "price": 0,
+    "category": "Tazas DragonBsll",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/DragonBsll/DeagonBall08.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694923,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "Tazas DragonBsll",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/DragonBsll/DragonBall01.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694183,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "Tazas DragonBsll",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/DragonBsll/DragonBall02.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694734,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "Tazas DragonBsll",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/DragonBsll/DragonBall04.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694296,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "Tazas DragonBsll",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/DragonBsll/DragonBall05.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694405,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "Tazas DragonBsll",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/DragonBsll/DragonBall06.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694428,
+    "name": "DragonBall",
+    "price": 0,
+    "category": "Tazas DragonBsll",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/DragonBsll/DragonBall07.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694552,
+    "name": "IMG",
+    "price": 0,
+    "category": "Tazas Naruto",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/Naruto/IMG_20260404_004831.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694359,
+    "name": "Naruto",
+    "price": 0,
+    "category": "Tazas Naruto",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/Naruto/Naruto01.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025694633,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "Tazas Naruto",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/Naruto/snapshot (18).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695876,
+    "name": "Barto",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/Barto.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695387,
+    "name": "Bob&star",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/Bob&star.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695000,
+    "name": "HomeroDollar",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/HomeroDollar.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695524,
+    "name": "HomeroEat",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/HomeroEat.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695996,
+    "name": "HomeroEvolition",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/HomeroEvolition.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695461,
+    "name": "HomeroFrase",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/HomeroFrase.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695266,
+    "name": "HomeroRosquilla",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/HomeroRosquilla.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695945,
+    "name": "HomeroSleep",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/HomeroSleep.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695806,
+    "name": "LisaSimpson",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/LisaSimpson.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695630,
+    "name": "Simpsons",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/Simpsons01.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695875,
+    "name": "SimpsonsBrothers",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/SimpsonsBrothers.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695682,
+    "name": "CervezaDuff",
+    "price": 0,
+    "category": "Tazas TheSimpsons",
+    "desc": "Auto-detectado",
+    "img": "img/Tazas/TheSimpsons/cervezaDuff.png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695480,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (10).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695536,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (13).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695743,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (14).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695130,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (15).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695439,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (16).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025695230,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (17).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696653,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (18).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696597,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (2).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696988,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (3).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696113,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (4).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696326,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (5).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696049,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (6).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696842,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (7).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696769,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (8).png",
+    "size": "normal"
+  },
+  {
+    "id": 1776025696036,
+    "name": "Snapshot ()",
+    "price": 0,
+    "category": "General",
+    "desc": "Auto-detectado",
+    "img": "img/snapshot (9).png",
+    "size": "normal"
+  }
+]

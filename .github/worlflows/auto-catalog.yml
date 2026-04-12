@@ -1,9 +1,9 @@
-
 name: Auto-Actualizar Catálogo LOXTSO
 on:
   push:
     paths:
       - 'img/**'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,35 +14,58 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Procesar Imagenes
-        shell: bash
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Procesar Imágenes
         run: |
-          # Crear el json si no existe
-          if [ ! -s productos.json ]; then echo "[]" > productos.json; fi
+          if [ ! -f productos.json ] || [ ! -s productos.json ]; then
+            echo "[]" > productos.json
+          fi
           
-          # Buscar imagenes y procesar
-          find img -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.jpeg" \) | while read file; do
-            if ! grep -q "$file" productos.json; then
-              # Generar categoria segun la subcarpeta
-              category=$(dirname "$file" | sed 's/img\///g' | sed 's/\// /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
-              if [ "$category" == "img" ] || [ -z "$category" ]; then category="General"; fi
-
-              # Generar nombre segun el archivo
-              filename=$(basename "$file")
-              clean_name=$(echo "${filename%.*}" | sed 's/-/ /g' | sed 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
-              
-              # Crear el objeto con jq
-              new_item="{\"id\": $(date +%s%N), \"name\": \"$clean_name\", \"price\": 0.00, \"category\": \"$category\", \"img\": \"$file\", \"size\": \"normal\"}"
-              
-              jq ". |= [$new_item] + ." productos.json > temp.json && mv temp.json productos.json
+          if ! jq -e . productos.json >/dev/null 2>&1; then
+            echo "[]" > productos.json
+          fi
+          
+          echo "Buscando imágenes en img/..."
+          
+          find img -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.jpeg" \) | sort | while read file; do
+            echo "Procesando: $file"
+            
+            dir_path=$(dirname "$file")
+            if [ "$dir_path" = "img" ]; then 
+              category="General"
+            else
+              category=$(echo "$dir_path" | rev | cut -d'/' -f1 | rev | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
             fi
+
+            filename=$(basename "$file")
+            name_only="${filename%.*}"
+            clean_name=$(echo "$name_only" | sed 's/(.*)//g' | sed 's/-/ /g' | sed 's/_/ /g' | sed 's/[0-9]*$//g' | sed 's/  */ /g' | xargs)
+            clean_name=$(echo "$clean_name" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
+            
+            if [ -z "$clean_name" ]; then
+              clean_name="Producto"
+            fi
+            
+            new_id=$(( $(date +%s) * 1000 + RANDOM % 1000 ))
+            
+            tmp=$(mktemp)
+            jq --arg id "$new_id" --arg name "$clean_name" --arg category "$category" --arg img "$file" \
+              '. + [{id: $id | tonumber, name: $name, price: 0, category: $category, desc: "Auto-detectado", img: $img, size: "normal"}]' \
+              productos.json > tmp && mv tmp productos.json
+            
+            echo "✓Agregado: $clean_name ($category)"
           done
 
       - name: Commit y Push
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "loxtso-bot"
+          git config --global user.email "bot@loxtso.com"
           git add productos.json
-          git commit -m "🤖 Producto autodetectado en carpeta" || exit 0
+          git diff --cached --quiet && echo "No hay cambios nuevos" && exit 0
+          git commit -m "🤖 Auto-catálogo: productos detectados" || echo "Nothing to commit"
           git push
